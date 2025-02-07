@@ -83,8 +83,8 @@ const AdminDashboard = () => {
   return (
     <Box sx={{ padding: "20px", maxWidth: "1200px", margin: "auto" }}>
       <Typography variant="h4" gutterBottom>
-        Panell d'Administració
-'      </Typography>
+        Panell d’Administració
+      </Typography>
 
       {/* Gestió de Productes */}
       <Box sx={{ marginBottom: "40px" }}>

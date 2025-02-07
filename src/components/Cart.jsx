@@ -75,7 +75,7 @@ const Cart = () => {
               />
               <CardContent sx={{ flex: 1 }}>
                 <Typography variant="h6">{item.name}</Typography>
-                <Typography variant="body1">Preu: EUR{item.price}</Typography>
+                <Typography variant="body1">Preu: €{item.price}</Typography>
                 <Box sx={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "10px" }}>
                   <Typography>Quantitat:</Typography>
                   <TextField

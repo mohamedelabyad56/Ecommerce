@@ -14,7 +14,7 @@ const OrderHistory = ({ userId }) => {
   const db = getFirestore();
 
   // Carrega les comandes de l'usuari
-'  const fetchOrders = async () => {
+  const fetchOrders = async () => {
     setLoading(true);
     try {
       const ordersQuery = query(

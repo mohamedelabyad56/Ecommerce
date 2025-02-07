@@ -14,7 +14,7 @@ const Footer = () => {
     >
       {/* Missatge principal */}
       <Typography variant="body1" sx={{ marginBottom: "10px" }}>
-        (c) 2024 MiTienda. Tots els drets reservats.
+        © 2024 MiTienda. Tots els drets reservats.
       </Typography>
       
       {/* Enllaços */}

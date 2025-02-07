@@ -79,7 +79,7 @@ const Authentication = () => {
     >
       {user ? (
         // Si l'usuari ha iniciat sessió
-'        <Box>
+        <Box>
           <Typography variant="h6">Benvingut, {user.email}</Typography>
           <Button
             variant="contained"

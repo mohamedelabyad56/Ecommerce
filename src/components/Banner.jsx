@@ -25,7 +25,7 @@ const Banner = () => {
           textAlign: "center",
         }}
       >
-        !Explora nuestras ofertas exclusivas!
+        ¡Explora nuestras ofertas exclusivas!
       </Typography>
     </Box>
   );

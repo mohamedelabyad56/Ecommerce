@@ -65,7 +65,7 @@ const ProductDetails = () => {
         }}
       >
         <Typography variant="h6">No s'ha trobat el producte.</Typography>
-'      </Box>
+      </Box>
     );
   }
 
