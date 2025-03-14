@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { fetchProducts } from "../services/productService";
-import SidebarFilters from "./SidebarFilters"; // Importamos el filtro de categorías
+import SidebarFilters from "./SidebarFilters";
 import {
   Box,
   Grid,
@@ -17,111 +17,64 @@ const stripePromise = loadStripe("pk_test_51QSgAiBNoAIrMHfdrqMMFCgqvBXCJ9ymEpmjB
 
 const ProductGrid = () => {
   const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategories, setSelectedCategories] = useState([]); // Solo filtramos por categoría
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [priceRange, setPriceRange] = useState([0, 1000]);
+  const [maxPrice, setMaxPrice] = useState(1000);
 
   useEffect(() => {
     const loadProducts = async () => {
       const data = await fetchProducts();
       setProducts(data);
-      setFilteredProducts(data); // Inicialmente mostramos todos los productos
       setLoading(false);
+
+      const prices = data.map((product) => product.price);
+      const minPrice = Math.min(...prices);
+      const maxPrice = Math.max(...prices);
+      setPriceRange([minPrice, maxPrice]);
+      setMaxPrice(maxPrice);
     };
     loadProducts();
   }, []);
 
-  // Filtrar productos cuando cambia la categoría seleccionada
-  useEffect(() => {
-    if (selectedCategories.length === 0) {
-      setFilteredProducts(products); // Si no hay categorías seleccionadas, mostrar todos
-    } else {
-      const filtered = products.filter(product =>
-        selectedCategories.includes(product.category)
-      );
-      setFilteredProducts(filtered);
-    }
-  }, [selectedCategories, products]);
-
-  const handleBuyNow = async (product) => {
-    const stripe = await stripePromise;
-
-    try {
-      const response = await fetch("http://localhost:3001/create-checkout-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          items: [
-            {
-              name: product.name,
-              price: product.price,
-              quantity: 1,
-            },
-          ],
-          success_url: `${window.location.origin}/success`,
-          cancel_url: `${window.location.origin}/cancel`,
-        }),
-      });
-
-      const { sessionId } = await response.json();
-      await stripe.redirectToCheckout({ sessionId });
-    } catch (error) {
-      console.error("Error al processar el pagament:", error);
-      alert("No s'ha pogut completar el pagament.");
-    }
-  };
-
-  if (loading) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-        <CircularProgress />
-      </Box>
+  const filteredProducts = useMemo(() => {
+    return products.filter(
+      (product) =>
+        (selectedCategories.length === 0 || selectedCategories.includes(product.category)) &&
+        product.price >= priceRange[0] && product.price <= priceRange[1]
     );
-  }
+  }, [selectedCategories, priceRange, products]);
 
   return (
     <Box sx={{ display: "flex" }}>
-      {/* Sidebar de categorías */}
       <Box sx={{ width: 250, borderRight: "1px solid #ddd", padding: 2 }}>
-        <SidebarFilters onCategoryChange={setSelectedCategories} />
+        <SidebarFilters 
+          onCategoryChange={setSelectedCategories}
+          onPriceChange={setPriceRange}
+          priceRange={priceRange}
+          maxPrice={maxPrice}
+        />
       </Box>
-
-      {/* Grid de productos */}
-      <Box sx={{ flex: 1, padding: "20px" }}>
-        <Typography variant="h5" sx={{ marginBottom: 2 }}>Productes disponibles</Typography>
-        <Grid container spacing={3}>
-          {filteredProducts.map((product) => (
-            <Grid item xs={12} sm={6} md={4} key={product.id}>
+      <Grid container spacing={2} sx={{ flexGrow: 1, padding: 2 }}>
+        {loading ? (
+          <CircularProgress />
+        ) : (
+          filteredProducts.map((product) => (
+            <Grid item key={product.id} xs={12} sm={6} md={4} lg={3}>
               <Card>
-                <CardMedia
-                  component="img"
-                  height="200"
-                  image={product.imageURL}
-                  alt={product.name}
-                  sx={{ objectFit: "cover" }}
-                />
+                <CardMedia component="img" height="140" image={product.image} alt={product.name} />
                 <CardContent>
                   <Typography variant="h6">{product.name}</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {product.description}
-                  </Typography>
-                  <Typography variant="h6" sx={{ marginTop: "10px" }}>
+                  <Typography variant="body2" color="textSecondary">
                     €{product.price}
                   </Typography>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => handleBuyNow(product)}
-                    sx={{ marginTop: "10px" }}
-                  >
-                    Comprar ara
-                  </Button>
+                  <Button variant="contained" color="primary">Comprar</Button>
                 </CardContent>
               </Card>
             </Grid>
-          ))}
-        </Grid>
-      </Box>
+          ))
+        )}
+      </Grid>
     </Box>
   );
 };
